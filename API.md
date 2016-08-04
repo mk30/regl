@@ -2509,4 +2509,8 @@ The following are some random tips for writing WebGL programs.  Some are regl sp
 
 ### Use batch mode
 
-### Use glslify
+### glslify
+
+### Fixed time steps
+
+Always use a fixed time step.  Variable time steps are too hard to get right, impossible to trust.
