@@ -15,8 +15,13 @@ const drawBunny = regl({
   frag: `
     precision mediump float;
     varying vec3 vnormal;
+    vec3 hsl2rgb(in float h, float s, float l) {
+      vec3 rgb = clamp( abs(mod(h*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0, 1.0 );
+      return l + s * (rgb-0.5)*(1.0-abs(2.0*l-1.0));
+    }
     void main () {
-      gl_FragColor = vec4(abs(vnormal), 1.0);
+      gl_FragColor = vec4(hsl2rgb(abs(vnormal.y), 0.8,
+      0.5), 1.0);
     }`,
   vert: `
     precision mediump float;
