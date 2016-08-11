@@ -4,7 +4,7 @@
 
 const regl = require('../regl')()
 
-const bunny = require('./isosurface.js')
+const bunny = require('bunny')
 const normals = require('angle-normals')
 
 const camera = require('./util/camera')(regl, {
