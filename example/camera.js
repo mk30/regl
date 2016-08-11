@@ -20,7 +20,7 @@ const drawBunny = regl({
       return hsl.z + hsl.y * (rgb-0.5)*(1.0-abs(2.0*hsl.z-1.0));
     }
     void main () {
-      gl_FragColor = vec4(hsl2rgb(abs(vnormal)), 1.0);
+      gl_FragColor = vec4(hsl2rgb(vnormal), 1.0);
     }`,
   vert: `
     precision mediump float;
