@@ -23,15 +23,27 @@ const drawBunny = regl({
     uniform mat4 projection, view;
     attribute vec3 position, normal;
     varying vec3 vnormal;
+    uniform float t;
+    vec3 warp (vec3 p){
+      float r = length(p.zx);
+      float theta = (1.1 + cos(5.0*r*t))*atan(p.z, p.x);
+      return vec3 (r*cos(theta), p.y, r*sin(theta));
+    }
     void main () {
       vnormal = normal;
-      gl_Position = projection * view * vec4(position, 1.0);
+      gl_Position = projection * view * vec4(warp(position), 1.0);
     }`,
   attributes: {
     position: bunny.positions,
     normal: normals(bunny.cells, bunny.positions)
   },
-  elements: bunny.cells
+  elements: bunny.cells,
+  uniforms: {
+    t: function(context, props){
+         return context.tick/1000
+       }
+
+  }
 })
 
 regl.frame(() => {
