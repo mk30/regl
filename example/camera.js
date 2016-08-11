@@ -4,7 +4,7 @@
 
 const regl = require('../regl')()
 
-const bunny = require('bunny')
+const bunny = require('./isosurface.js')
 const normals = require('angle-normals')
 
 const camera = require('./util/camera')(regl, {
@@ -27,11 +27,14 @@ const drawBunny = regl({
     vec3 warp (vec3 p){
       float r = length(p.zx);
       float theta = atan(p.z, p.x);
-      return vec3 (cos(theta), p.y, sin(theta));
+      return vec3 (r*cos(theta), p.y, r*sin(theta)) +
+      vnormal*(1.0+cos(40.0*t+p.y));
     }
     void main () {
       vnormal = normal;
       gl_Position = projection * view * vec4(warp(position), 1.0);
+      gl_PointSize =
+      (64.0*(1.0+sin(t*20.0+length(position))))/gl_Position.w;
     }`,
   attributes: {
     position: bunny.positions,
@@ -43,7 +46,8 @@ const drawBunny = regl({
          return context.tick/1000
        }
 
-  }
+  },
+  primitive: "points"
 })
 
 regl.frame(() => {
