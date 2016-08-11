@@ -4,11 +4,7 @@
 
 const regl = require('../regl')()
 
-regl.clear({
-  color: [0, 0, 0, 1],
-  depth: 1
-})
-
+const drawLines = 
 regl({
   frag: `
     precision mediump float;
@@ -26,13 +22,19 @@ regl({
 
   attributes: {
     position: (new Array(5)).fill().map((x, i) => {
-      var theta = 2.0 * Math.PI * i / 5
+      var theta = 3.0 * Math.PI * i / 5
       return [ Math.sin(theta), Math.cos(theta) ]
     })
   },
 
   uniforms: {
-    color: [1, 0, 0, 1]
+    color: ({tick}) =>
+      [
+      Math.cos(tick*0.01),
+      Math.sin(tick*0.01),
+      0.5,
+      1
+    ]
   },
 
   elements: [
@@ -47,6 +49,13 @@ regl({
     [2, 4],
     [3, 4]
   ],
+  lineWidth: 5
+})
 
-  lineWidth: 3
-})()
+regl.frame(function (){
+  regl.clear({
+    color: [0,0,0,1],
+    depth: 1
+  })
+  drawLines()
+})

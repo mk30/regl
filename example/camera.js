@@ -26,8 +26,8 @@ const drawBunny = regl({
     uniform float t;
     vec3 warp (vec3 p){
       float r = length(p.zx);
-      float theta = cos(5.0*t)/ r;
-      return vec3 (r*cos(theta), p.y, r*sin(theta));
+      float theta = cos(5.0*t)+ r;
+      return vec3 (cos(theta), p.y, sin(theta));
     }
     void main () {
       vnormal = normal;
