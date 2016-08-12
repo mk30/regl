@@ -17,11 +17,11 @@ const drawBunny = regl({
     precision mediump float;
     varying vec3 vnormal;
     vec3 hsl2rgb(vec3 hsl) {
-      vec3 rgb = clamp( abs(mod(hsl.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0, 1.0 );
-      return hsl.z + hsl.y * (rgb-0.5)*(1.0-abs(2.0*hsl.z-1.0));
+      vec3 rgb = clamp( abs(mod(hsl.x*2.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0, 1.0 );
+      return hsl.z - hsl.y * (rgb-0.5)*(3.0-abs(2.0*hsl.y-1.0));
     }
     void main () {
-      gl_FragColor = vec4(hsl2rgb(vnormal), 1.0);
+      gl_FragColor = vec4(hsl2rgb(abs(vnormal)), 1.0);
     }`,
   vert: `
     precision mediump float;

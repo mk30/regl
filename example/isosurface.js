@@ -1,13 +1,15 @@
 var isosurface = require("isosurface")
 var glvec3 = require("gl-vec3")
-
-function length (a, b){
-  return Math.sqrt(Math.pow(a,2) + Math.pow(b, 2))
-}
-var mesh = isosurface.surfaceNets([100,100,100], function(x,y,z) {
-  return Math.pow(Math.pow(x, 6) + Math.pow(y, 6) +
-  Math.pow(z, 6), 1/6) - 10
-}, [[-11,-11,-11], [11,11,11]])
-
+var glvec2 = require("gl-vec2")
+function sdTorus(a, b) //a should be a vec3, b should be a vec2
+  {
+    var c = [glvec2.length([a[0], a[2]])-b[0],a[1]];
+    return glvec2.length(c)-b[1];
+  }
+var mesh = isosurface.surfaceNets([100,100,100], 
+  function (x, y, z){
+    return sdTorus([x,y,z], [5, 1])
+  }
+  , [[-11,-11,-11], [11,11,11]])
 
 module.exports = mesh
