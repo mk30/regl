@@ -6,7 +6,10 @@
   "directories": {
     "example": "example"
   },
-  "dependencies": {},
+  "dependencies": {
+    "gl-vec3": "^1.0.3",
+    "isosurface": "^1.0.0"
+  },
   "devDependencies": {
     "angle-normals": "^1.0.0",
     "baboon-image": "^2.0.0",
