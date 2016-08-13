@@ -1,11 +1,8 @@
-/*
-  <p>This example shows how to implement a movable camera with regl.</p>
- */
-
 const regl = require('../regl')()
+const mat4 = require('gl-mat4')
 
-//const bunny = require('bunny.js')
-const bunny = require('./isosurface.js')
+const bunny = require('bunny')
+//const bunny = require('./isosurface.js')
 const normals = require('angle-normals')
 
 const camera = require('./util/camera')(regl, {
@@ -25,7 +22,7 @@ const drawBunny = regl({
     }`,
   vert: `
     precision mediump float;
-    uniform mat4 projection, view;
+    uniform mat4 model, projection, view;
     attribute vec3 position, normal;
     varying vec3 vnormal;
     uniform float t;
@@ -37,7 +34,7 @@ const drawBunny = regl({
     }
     void main () {
       vnormal = normal;
-      gl_Position = projection * view * vec4(warp(position), 1.0);
+      gl_Position = projection * view * model * vec4(warp(position), 1.0);
       gl_PointSize =
       (64.0*(1.0+sin(t*20.0+length(position))))/gl_Position.w;
     }`,
@@ -49,9 +46,14 @@ const drawBunny = regl({
   uniforms: {
     t: function(context, props){
          return context.tick/1000
-       }
-
+       },
+    model: function(context, props){
+      var theta = context.tick/60
+      return mat4.rotateY([], mat4.identity([]), theta)
+    }
+    
   },
+
   primitive: "points"
 })
 
