@@ -1,5 +1,6 @@
 const regl = require('../regl')()
 const mat4 = require('gl-mat4')
+var rmat = []
 
 const bunny = require('bunny')
 //const bunny = require('./isosurface.js')
@@ -49,7 +50,7 @@ const drawBunny = regl({
        },
     model: function(context, props){
       var theta = context.tick/60
-      return mat4.rotateY([], mat4.identity([]), theta)
+      return mat4.rotateY(rmat, mat4.identity(rmat), theta)
     }
     
   },
