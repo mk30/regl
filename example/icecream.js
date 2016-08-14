@@ -49,7 +49,7 @@ const drawcream = regl({
        },
     model: function(context, props){
       var theta = context.tick/60
-      return mat4.rotateZ(rmat, mat4.identity(rmat), theta)
+      return mat4.rotateX(rmat, mat4.identity(rmat), theta)
     }
     
   }
