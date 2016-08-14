@@ -2,8 +2,8 @@ const regl = require('../regl')()
 const mat4 = require('gl-mat4')
 var rmat = []
 
-const bunny = require('bunny')
-//const bunny = require('./isosurface.js')
+//const bunny = require('bunny')
+const bunny = require('./icecream.js')
 const normals = require('angle-normals')
 
 const camera = require('./util/camera')(regl, {
