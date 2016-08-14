@@ -7,9 +7,9 @@ function sdCone( a, b ) { //a should be a vec3, b should be a vec2
   return glvec2.dot([b[0], b[1]], [c, a[2]]);
 }
 var mesh = isosurface.surfaceNets([64,64,64],
-  function (x, y, z){
-    return sdCone([x,y,z-10], [3, 0.5])
+  function (y, z, x){
+    return sdCone([x,y,-5-z], [3, 0.5])
   }
-  , [[-11,-11,-21], [11,11,21]])
+  , [[-11,-11,-11], [11,21,11]])
 
 module.exports = mesh
