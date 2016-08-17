@@ -15,7 +15,7 @@ function sdCone( a, b ) //a should be a vec3, b should be a vec2
   }
 var mesh = isosurface.surfaceNets([100,100,100],
   function (x, y, z){
-    return sdCone([x,y,z], [5, 1])
+    return sdCone([Math.sin(x)*5.0*x-10.0,y/5.0,Math.sin(z)*5.0], [5, 1])
   }
   , [[-11,-11,-11], [11,11,11]])
 
