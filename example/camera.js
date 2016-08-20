@@ -19,7 +19,7 @@ const drawCone = regl({
       return hsl.z - hsl.y * (rgb-0.5)*(10.0-abs(2.0*hsl.y-1.0));
     }
     void main () {
-      gl_FragColor = vec4(hsl2rgb(abs(vnormal)).xy, 0.5, 1.0);
+      gl_FragColor = vec4(hsl2rgb(abs(vnormal)).xz, 0.5, 1.0);
     }`,
   vert: `
     precision mediump float;
@@ -28,16 +28,16 @@ const drawCone = regl({
     varying vec3 vnormal;
     uniform float t;
     vec3 warp (vec3 p){
-      float r = length(p.zx);
-      float theta = atan(p.z, p.x);
-      return vec3 (r*cos(theta), p.y, r*sin(theta)) +
+      float r = length(p.yz);
+      float theta = atan(p.y, p.z);
+      return vec3 (r*cos(theta), p.y, r*sin(theta*10.0)) +
       vnormal*(1.0+cos(10.0*t*r-p.y));
     }
     void main () {
       vnormal = normal;
       gl_Position = projection * view * model * vec4(warp(position), 1.0);
       gl_PointSize =
-      (64.0*(1.0+sin(t*20.0+length(position))))/gl_Position.w;
+      (100.0*(1.0+sin(t*20.0+length(position))))/gl_Position.w;
     }`,
   attributes: {
     position: cone.positions,
@@ -50,11 +50,11 @@ const drawCone = regl({
        },
     model: function(context, props){
       var theta = context.tick/60
-      return mat4.rotateY(rmat, mat4.identity(rmat), theta)
+      return mat4.rotateX(rmat, mat4.identity(rmat), theta)
     }
     
   },
-  primitive: "triangles"
+  primitive: "points"
 })
 
 regl.frame(() => {
