@@ -54,7 +54,7 @@ const drawBunny = regl({
     
   },
 
-  primitive: "points"
+  primitive: "line loop"
 })
 
 regl.frame(() => {
