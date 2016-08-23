@@ -2,7 +2,7 @@ const regl = require('../regl')()
 const mat4 = require('gl-mat4')
 var rmat = []
 
-const cone = require('./icecream.js')
+const cone = require('./rotatypointmodule.js')
 const normals = require('angle-normals')
 
 const camera = require('./util/camera')(regl, {
