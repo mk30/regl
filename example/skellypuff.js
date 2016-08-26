@@ -36,7 +36,7 @@ const drawBunny = regl({
     void main () {
       vnormal = normal;
       gl_Position = projection * view * model *
-      vec4(warp(position/5.0), 1.0);
+      vec4(warp(position), 1.0);
       gl_PointSize =
       (64.0*(1.0+sin(t*20.0+length(position))))/gl_Position.w;
     }`,
