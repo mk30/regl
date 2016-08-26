@@ -10,6 +10,9 @@ const camera = require('./util/camera')(regl, {
   center: [0.0, 2.5, 0.0]
 })
 
+const SetupCamera = regl  
+
+
 const drawcyl = regl({
   frag: `
     precision mediump float;
@@ -52,6 +55,13 @@ const drawcyl = regl({
       //return mat4.rotateY(rmat, mat4.identity(rmat), theta)
       return mat4.scale(rmat, mat4.identity(rmat),
       [Math.sin(10.0*context.time), 0.0, 2.7])
+    },
+    projection: function (context){
+      return mat4.perspective(
+        mat4.create(), Math.PI/4,
+        context.viewportWidth/context.viewportHeight, 0.01,
+        1000
+      )
     }
     
   },
