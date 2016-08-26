@@ -8,7 +8,7 @@ var demos = [
   require('./shani4x4.js')(regl)
 ]
 const camera = require('./util/camera')(regl, {
-  center: [0, 2.5, 0]
+  center: [0, 0, 0]
 })
 
 var index = 0
