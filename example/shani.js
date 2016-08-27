@@ -1,9 +1,10 @@
 var regl = require('../regl')()
 var demos = [ 
   require('./shaniswimmypuff.js')(regl),
-  require('./shanitext.js')(regl),
-  require('./shanicyl.js')(regl),
   require('./shanicactus.js')(regl),
+  require('./shanitext.js')(regl),
+  require('./shaniskellyscissor.js')(regl),
+  require('./shanicyl.js')(regl),
   require('./shanirotatypoints.js')(regl),
   require('./shaniicecream.js')(regl),
   require('./shanitext2.js')(regl),
@@ -17,9 +18,8 @@ var index = 0
 
 var interval = setInterval(function() {
   index++
-}, 3000)
+}, 7000)
 
-//var active = 'fourxfour'
 regl.frame(() => {
   regl.clear({
     color: [0, 0, 0, 1]
