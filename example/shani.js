@@ -1,5 +1,6 @@
 var regl = require('../regl')()
 var demos = [ 
+  require('./shaniswimmypuff.js')(regl),
   require('./shanitext.js')(regl),
   require('./shanicyl.js')(regl),
   require('./shanicactus.js')(regl),

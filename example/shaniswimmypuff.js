@@ -2,26 +2,24 @@ const regl = require('../regl')()
 const mat4 = require('gl-mat4')
 var rmat = []
 
-const cyl = require('./implicitcyl.js')
+const skelly = require('./skelly.json')
 const normals = require('angle-normals')
 
 const camera = require('./util/camera')(regl, {
   center: [0, 2.5, 0]
 })
-module.exports = function (regl) {
-  const drawcyl = regl({
+
+module.exports = function(regl){
+  const drawskelly = regl({
     frag: `
       precision mediump float;
       varying vec3 vnormal;
-      vec3 hsl2rgb(vec3 v ) {
-        vec3 rgb = clamp( abs(mod(v.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0, 1.0 );
-        return v.z + v.y * (rgb-0.5)*(1.0-abs(2.0*v.z-1.0));
-      }
-      vec3 warpcolor (vec3 rgb){
-        return rgb*5.0;
+      vec3 hsl2rgb(vec3 hsl) {
+        vec3 rgb = clamp( abs(mod(hsl.x*2.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0, 1.0 );
+        return hsl.z - hsl.y * (rgb-0.5)*(3.0-abs(2.0*hsl.y-1.0));
       }
       void main () {
-        gl_FragColor = vec4(hsl2rgb(warpcolor(abs(vnormal))), 1.0);
+        gl_FragColor = vec4(hsl2rgb(abs(vnormal)), 1.0);
       }`,
     vert: `
       precision mediump float;
@@ -32,34 +30,35 @@ module.exports = function (regl) {
       vec3 warp (vec3 p){
         float r = length(p.zx);
         float theta = atan(p.z, p.x);
-        return vec3 (r*cos(theta), p.y, r*sin(theta)) +
-        vnormal*(1.0+cos(40.0*t+p.y));
+        return vec3 (r-cos(theta), r, r*sin(theta)) +
+        vnormal+(1.0+cos(40.0*t+p.z));
       }
       void main () {
         vnormal = normal;
-        gl_Position = projection * view * model * vec4(warp(position), 1.0);
+        gl_Position = projection * view * model *
+        vec4(warp(position), 1.0);
         gl_PointSize =
         (64.0*(1.0+sin(t*20.0+length(position))))/gl_Position.w;
       }`,
     attributes: {
-      position: cyl.positions,
-      normal: normals(cyl.cells, cyl.positions)
+      position: skelly.positions,
+      normal: normals(skelly.cells, skelly.positions)
     },
-    elements: cyl.cells,
+    elements: skelly.cells,
     uniforms: {
       t: function(context, props){
            return context.tick/1000
          },
       model: function(context, props){
         var theta = context.tick/60
-        return mat4.rotateY(rmat, mat4.identity(rmat), theta)
+        return mat4.rotateX(rmat, mat4.identity(rmat), theta)
       }
       
     },
 
-    primitive: "line loop"
+    primitive: "triangles"
   })
-    return function(){
-   drawcyl()
-  }
+  return function(){
+    drawskelly()
+  } 
 }
