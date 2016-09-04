@@ -1,6 +1,10 @@
 const regl = require('../../regl')()
 const mat4 = require('gl-mat4')
 
+var fs = require('fs');
+var image = fs.readFileSync(__dirname + '/cactusweird.png', 'base64');
+var imageurl = 'data:image/png;base64,' + image
+
 var cubePosition = [
   [-1.5, +1.5, +1.5], [+0.5, +0.5, +0.5], [+0.5, -0.5, +0.5], [-0.5, -0.5, +0.5], // positive z face.
   [+0.5, +0.5, +0.5], [+0.5, +0.5, -0.5], [+0.5, -2.5,
@@ -75,7 +79,7 @@ require('resl')({
   manifest: {
     texture: {
       type: 'image',
-      src: './cactusweird.png',
+      src: imageurl,
       parser: (data) => regl.texture({
         data: data,
         mag: 'linear',
