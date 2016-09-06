@@ -2,8 +2,8 @@ const regl = require('../regl')()
 const mat4 = require('gl-mat4')
 var rmat = []
 
-const cyl = require('./butterflycyl.js')
-const cream = require('./butterflycream.js')
+const cyl = require('./butterflycylmodule.js')
+const cream = require('./butterflycreammodule.js')
 const normals = require('angle-normals')
 
 const camera = require('./util/camera')(regl, {
