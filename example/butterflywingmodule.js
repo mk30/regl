@@ -1,8 +1,21 @@
+//takes a file that exports a mesh for an implicit surface
+//and returns a draw() fn that can be placed in a regl frame
+//file
 const regl = require('../regl')()
 const mat4 = require('gl-mat4')
 var rmat = []
-
-const cyl = require('./butterflycylmodule.js')
+const cyl = require('./butterflycreammodule.js')
+//perform operation on cyl...ie, -cyl, +cyl, and combined
+//cyl so that drawcyl operates on both sets of data
+var mathcalc = function(elem, index, array) {
+  return elem*2
+}
+function arrayofarrays (elem, index, array){
+  var a = elem.map(mathcalc())
+  return a
+}
+const butterfly = cyl.positions.map(arrayofarrays)
+console.log(butterfly)
 const normals = require('angle-normals')
 module.exports = function (regl){
   const drawcyl = regl({

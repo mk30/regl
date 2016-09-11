@@ -1,3 +1,5 @@
+//takes a function for an implicit sphere with a
+//displacement and exports the mesh
 var isosurface = require("isosurface")
 
 function displacement (a, b, c){
