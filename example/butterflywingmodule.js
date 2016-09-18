@@ -29,8 +29,8 @@ module.exports = function (regl){
       vec3 warp (vec3 p){
         float r = length(p.zx*sin(t*p.yz));
         float theta = atan(p.y, p.z);
-        //return vec3 (r*cos(theta), p.y, r*sin(theta));
-        return vec3 (r*cos(p.y), p.y, r*sin(theta));
+        return vec3 (r*cos(theta), p.y, r*sin(theta));
+        //return vec3 (r*cos(p.y), p.y, r*sin(theta));
       }
       void main () {
         vnormal = normal;
@@ -51,7 +51,7 @@ module.exports = function (regl){
         var theta = -context.tick/60
         //return mat4.rotateY(rmat, mat4.identity(rmat), theta)
         return mat4.scale(rmat, mat4.identity(rmat),
-        [Math.sin(10.0/context.time), Math.sin(theta), 3.0])
+        [Math.sin(10.0*context.time), Math.sin(theta), 3.0])
       },
       projection: function (context){
         return mat4.perspective(
