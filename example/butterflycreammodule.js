@@ -7,7 +7,7 @@ function displacement (a, b, c){
 }
 
 function sphere (y, z, x){
-  return x*x + y*y + (z-5)*(z-5) - 40
+  return x*x + y*y + (z-2)*(z-2) - 40
 }
 
 var mesh = isosurface.surfaceNets([64,64,64],

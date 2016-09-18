@@ -4,7 +4,7 @@
 const regl = require('../regl')()
 const mat4 = require('gl-mat4')
 var rmat = []
-const cyl = require('./butterflycylmodule.js')
+const cyl = require('./butterflycreammodule.js')
 //perform operation on cyl...ie, -cyl, +cyl, and combined
 //cyl so that drawcyl operates on both sets of data
 const normals = require('angle-normals')
@@ -51,7 +51,7 @@ module.exports = function (regl){
         var theta = -context.tick/60
         //return mat4.rotateY(rmat, mat4.identity(rmat), theta)
         return mat4.scale(rmat, mat4.identity(rmat),
-        [Math.sin(10.0*context.time), Math.sin(theta), 3.0])
+        [Math.sin(10.0/context.time), Math.sin(theta), 3.0])
       },
       projection: function (context){
         return mat4.perspective(
