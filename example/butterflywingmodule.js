@@ -28,9 +28,9 @@ module.exports = function (regl){
       uniform float t;
       vec3 warp (vec3 p){
         vec3 a = p;
-        a.x = p.x;
-        a.y = p.x;
-        a.z = p.x;
+        a.x = p.y;
+        a.y = p.y;
+        a.z = p.z;
         float r = length(a.zx*sin(t*a.yz));
         float theta = atan(a.y, a.z);
         return vec3 (r*cos(theta), a.y, r*sin(theta));
