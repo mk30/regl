@@ -49,13 +49,19 @@ module.exports = function (regl){
     elements: cyl.cells,
     uniforms: {
       t: function(context, props){
-           return context.tick/1000
+           return context.tick/500
          },
       model: function(context, props){
+        mat4.identity(rmat)
         var theta = -context.tick/60
         //return mat4.rotateY(rmat, mat4.identity(rmat), theta)
-        return mat4.scale(rmat, mat4.identity(rmat),
-        [Math.sin(10.0*context.time), Math.sin(theta), 3.0])
+        //return mat4.scale(rmat, mat4.identity(rmat),
+        //[Math.sin(10.0*context.time), Math.sin(theta), 3.0])
+        //mat4.scale(rmat, mat4.identity(rmat),
+          //[ 0.25, 0.25, 0.25])
+        mat4.translate(rmat, mat4.identity(rmat),
+          [0,Math.sin(context.time)+2.0,context.time-10.0])
+        return rmat 
       },
       projection: function (context){
         return mat4.perspective(
