@@ -31,7 +31,7 @@ module.exports = function (regl){
         a.x = p.x;
         a.y = p.z;
         a.z = p.x;
-        float r = length(a.zx*sin(t*a.yz));
+        float r = length(2.0*a.zx*sin(t*a.yz));
         float theta = atan(a.y, a.z);
         return vec3 (r*cos(theta), a.y, r*sin(theta));
         //return vec3 (r*cos(p.y), p.y, r*sin(theta));
@@ -49,7 +49,7 @@ module.exports = function (regl){
     elements: cyl.cells,
     uniforms: {
       t: function(context, props){
-           return context.tick/500
+           return context.tick/1000
          },
       model: function(context, props){
         mat4.identity(rmat)
@@ -60,7 +60,7 @@ module.exports = function (regl){
         //mat4.scale(rmat, mat4.identity(rmat),
           //[ 0.25, 0.25, 0.25])
         mat4.translate(rmat, mat4.identity(rmat),
-          [0,Math.sin(context.time)+2.0,context.time-10.0])
+          [0,Math.sin(context.time)+2.0,context.time*0.4-10.0])
         return rmat 
       },
       projection: function (context){
