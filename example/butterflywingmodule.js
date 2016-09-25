@@ -27,9 +27,13 @@ module.exports = function (regl){
       varying vec3 vnormal;
       uniform float t;
       vec3 warp (vec3 p){
-        float r = length(p.zx*sin(t*p.yz));
-        float theta = atan(p.y, p.z);
-        return vec3 (r*cos(theta), p.y, r*sin(theta));
+        vec3 a = p;
+        a.x = p.y;
+        a.y = p.x;
+        a.z = p.x;
+        float r = length(a.zx*sin(t*a.yz));
+        float theta = atan(a.y, a.z);
+        return vec3 (r*cos(theta), a.y, r*sin(theta));
         //return vec3 (r*cos(p.y), p.y, r*sin(theta));
       }
       void main () {
