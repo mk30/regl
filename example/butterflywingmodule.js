@@ -71,7 +71,7 @@ module.exports = function (regl){
         )
       }
     },
-    primitive: "points"
+    primitive: "triangle fan"
   })
   return function(){
     drawcyl()
