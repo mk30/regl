@@ -4,25 +4,31 @@
 const regl = require('../regl')()
 const mat4 = require('gl-mat4')
 const bunny = require('bunny')
+const normals = require('angle-normals')
+
 
 const drawBunny = regl({
   vert: `
   precision mediump float;
-  attribute vec3 position;
+  attribute vec3 position, normal;
+  varying vec3 vnormal;
   uniform mat4 model, view, projection;
   void main() {
+    vnormal = normal;
     gl_Position = projection * view * model * vec4(position, 1);
   }`,
 
   frag: `
-  precision mediump float;
-  void main() {
-    gl_FragColor = vec4(1, 1, 1, 1);
+    precision mediump float;
+    varying vec3 vnormal;
+    void main () {
+    gl_FragColor = vec4(abs(vnormal), 1);
   }`,
 
   // this converts the vertices of the mesh into the position attribute
   attributes: {
-    position: bunny.positions
+    position: bunny.positions,
+    normal: normals(bunny.cells, bunny.positions)
   },
 
   // and this converts the faces fo the mesh into elements
