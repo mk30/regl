@@ -49,10 +49,12 @@ const drawBunny = regl({
         viewportWidth / viewportHeight,
         0.01,
         1000)
-  }
+  },
+  primitive: "lines"
 })
 
 regl.frame(() => {
+
   regl.clear({
     depth: 1,
     color: [0, 0, 0, 1]

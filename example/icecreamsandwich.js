@@ -107,5 +107,5 @@ regl.frame(() => {
   regl.clear({
     color: [0, 0, 0, 1]
   })
-  camera(() => { drawcyl(); drawcone() })
+  camera(() => { drawcyl() })
 })

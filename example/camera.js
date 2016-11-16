@@ -1,9 +1,4 @@
-/*
-  <p>This example shows how to implement a movable camera with regl.</p>
- */
-
 const regl = require('../regl')()
-
 const bunny = require('bunny')
 const normals = require('angle-normals')
 
