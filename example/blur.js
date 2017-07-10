@@ -15,7 +15,7 @@ const bunny = require('bunny')
 const normals = require('angle-normals')
 
 // increase and decrease the blur amount by modifying this value.
-const FILTER_RADIUS = 1
+const FILTER_RADIUS = 2 
 
 // configure intial camera view.
 camera.rotate([0.0, 0.0], [0.0, -0.4])

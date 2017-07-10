@@ -6,7 +6,7 @@ const bunny = require('./implicitcyl.js')
 const normals = require('angle-normals')
 
 const camera = require('./util/camera')(regl, {
-  center: [0, 2.5, 0]
+  center: [0, 0, 0]
 })
 
 const drawBunny = regl({
