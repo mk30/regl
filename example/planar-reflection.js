@@ -1,4 +1,6 @@
 /*
+  tags: stencil, advanced
+
   <p>This example shows how you can render planar reflections using the stencil buffer</p>
 
   <p>We are using the algorithm described <a href="http://www.cse.chalmers.se/edu/year/2015/course/TDA361/shadrefl.pdf#page=60">here</a> </p>
@@ -218,7 +220,7 @@ const createMask = regl({
     opFront: {
       fail: 'replace',
       zfail: 'replace',
-      pass: 'replace'
+      zpass: 'replace'
     }
   },
   // we want to write only to the stencil buffer,

@@ -1,4 +1,6 @@
 /*
+  tags: shadows, stencil, advanced
+
   <p> This example shows how to implement shadow volumes. </p>
 
   <p>This implementation was based on Mikola Lysneko's implementation
@@ -150,12 +152,12 @@ require('resl')({
         opBack: {
           fail: 'keep',
           zfail: 'increment wrap',
-          pass: 'keep'
+          zpass: 'keep'
         },
         opFront: {
           fail: 'keep',
           zfail: 'decrement wrap',
-          pass: 'keep'
+          zpass: 'keep'
         }
       },
       // do no culling. This means that we can write to the stencil
@@ -190,12 +192,7 @@ require('resl')({
         },
         // do no writing to stencil buffer in this pass.
         // we already did that in the previous pass.
-        opBack: {
-          fail: 'keep',
-          zfail: 'keep',
-          pass: 'keep'
-        },
-        opFront: {
+        op: {
           fail: 'keep',
           zfail: 'keep',
           pass: 'keep'

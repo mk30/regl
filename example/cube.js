@@ -1,4 +1,6 @@
 /*
+  tags: basic
+
   <p>This examples renders a spinning textured cube.</p>
 
  */
@@ -78,7 +80,7 @@ require('resl')({
   manifest: {
     texture: {
       type: 'image',
-      src: 'assets/lena.png',
+      src: 'assets/peppers.png',
       parser: (data) => regl.texture({
         data: data,
         mag: 'linear',

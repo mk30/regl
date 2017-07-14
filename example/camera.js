@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+/*
+  tags: basic
+
+  <p>This example shows how to implement a movable camera with regl.</p>
+ */
+
+>>>>>>> 60a996bd1782fc0264c4079a63ff711b53806439
 const regl = require('../regl')()
 const mat4 = require('gl-mat4')
 var rmat = []

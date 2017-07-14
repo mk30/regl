@@ -83,6 +83,7 @@
             -   [Texture subimage](#texture-subimage)
             -   [Texture resize](#texture-resize)
 
+        -   [Texture properties](#texture-properties)
         -   [Texture destructor](#texture-destructor)
 
         -   [Texture profiling](#texture-profiling)
@@ -96,6 +97,7 @@
             -   [Cube map subimage](#cube-map-subimage)
 
         -   [Cube map resize](#cube-map-resize)
+        -   [Cube map properties](#cube-map-properties)
 
         -   [Cube map profiling](#cube-map-profiling)
 
@@ -108,6 +110,7 @@
         -   [Renderbuffer update](#renderbuffer-update)
 
             -   [Renderbuffer resize](#renderbuffer-resize)
+        -   [Renderbuffer properties](#renderbuffer-properties)
 
         -   [Renderbuffers destructor](#renderbuffers-destructor)
 
@@ -141,6 +144,7 @@
     -   [Extensions](#extensions)
     -   [Device capabilities and limits](#device-capabilities-and-limits)
     -   [Performance metrics](#performance-metrics)
+    -   [Clocks and timers](#clocks-and-timers)
     -   [Clean up](#clean-up)
     -   [Context loss](#context-loss)
     -   [Unsafe escape hatch](#unsafe-escape-hatch)
@@ -150,12 +154,10 @@
     -   [Reuse commands](#reuse-commands)
     -   [Reuse resources (buffers, elements, textures, etc.)](#reuse-resources-buffers-elements-textures-etc)
     -   [Preallocate memory](#preallocate-memory)
-    -   [Debug vs release](#debug-vs-release)
+    -   [Removing assertions](#removing-assertions)
     -   [Profiling tips](#profiling-tips)
     -   [Context loss mitigation](#context-loss-mitigation)
-    -   [Cameras](#cameras)
     -   [Use batch mode](#use-batch-mode)
-    -   [Use glslify](#use-glslify)
 
 ## Initialization
 
@@ -244,6 +246,14 @@ var regl = require('regl')(require('gl')(256, 256))
 
 * * *
 
+### Error messages and debug mode
+
+By default if you compile `regl` with browserify then all error messages and checks are removed.  This is done in order to reduce the size of the final bundle and to improve run time performance.  
+
+**If you want error messages and are using browserify make sure that you compile using `--debug`**.  Not only will this insert debug messages but it will also give you source maps which make finding errors easier.
+
+Alternatively, consider using [`budo`](https://github.com/mattdesl/budo) for your live development server.  `budo` automatically compiles your code in debug mode and also provides facilities for live reloading.
+
 ## Commands
 
 _Draw commands_ are the fundamental abstraction in `regl`.  A draw command wraps up all of the WebGL state associated with a draw call (either `drawArrays` or `drawElements`) and packages it into a single reusable function. For example, here is a command that draws a triangle,
@@ -295,15 +305,17 @@ command(props)
 
 #### Batch rendering
 
-A command can also run multiple times by passing a non-negative integer or an array as the first argument.  The `batchId` is initially `0` and incremented for each iteration,
+A command can also run multiple times by passing a non-negative integer or an array as the first argument. The `batchId` is initially `0` and incremented for each iteration,
 
 ```javascript
 // Runs the command `count`-times
 command(count)
 
-// Runs the command once for each args
+// Runs the command once for each props
 command([props0, props1, props2, ..., propsn])
 ```
+
+In batch mode the command can be a little smarter regarding binding shaders/performing some checks. The command can then figure out which props are constant, which are dynamic, and then only apply the changes on each dynamic prop. This offers a small performance boost. 
 
 #### Scoped commands
 
@@ -365,11 +377,11 @@ var drawSpinningStretchyTriangle = regl({
     //  * batchId: which is the index of the draw command in the batch
     //
     angle: function (context, props, batchId) {
-      return args.speed * context.tick + 0.01 * batchId
+      return props.speed * context.tick + 0.01 * batchId
     },
 
     // As a shortcut/optimization we can also just read out a property
-    // from the args.  For example, this
+    // from the props.  For example, this
     //
     scale: regl.prop('scale'),
     //
@@ -624,6 +636,7 @@ var command = regl({
   uniform vec4 someUniform;
   uniform int anotherUniform;
   uniform SomeStruct nested;
+  uniform vec4 colors[2];
 
   void main() {
     gl_Position = vec4(1, 0, 0, 1);
@@ -632,7 +645,9 @@ var command = regl({
   uniforms: {
     someUniform: [1, 0, 0, 1],
     anotherUniform: regl.prop('myProp'),
-    'nested.value', 5.3
+    'nested.value': 5.3,
+    'colors[0]': [0, 1, 0, 1],
+    'colors[1]': [0, 0, 1, 1]
   },
 
   // ...
@@ -972,12 +987,12 @@ var command = regl({
     opFront: {
       fail: 'keep',
       zfail: 'keep',
-      pass: 'keep'
+      zpass: 'keep'
     },
     opBack: {
       fail: 'keep',
       zfail: 'keep',
-      pass: 'keep'
+      zpass: 'keep'
     }
   },
 
@@ -990,8 +1005,9 @@ var command = regl({
 | `enable`  | Toggles `gl.enable(gl.STENCIL_TEST)`       | `false`                                  |
 | `mask`    | Sets `gl.stencilMask`                      | `-1`                                     |
 | `func`    | Sets `gl.stencilFunc`                      | `{cmp:'always',ref:0,mask:-1}`           |
-| `opFront` | Sets `gl.stencilOpSeparate` for front face | `{fail:'keep',zfail:'keep',pass:'keep'}` |
-| `opBack`  | Sets `gl.stencilOpSeparate` for back face  | `{fail:'keep',zfail:'keep',pass:'keep'}` |
+| `opFront` | Sets `gl.stencilOpSeparate` for front face | `{fail:'keep',zfail:'keep',zpass:'keep'}` |
+| `opBack`  | Sets `gl.stencilOpSeparate` for back face  | `{fail:'keep',zfail:'keep',zpass:'keep'}` |
+| `op` | Sets `opFront` and `opBack` simultaneously | |
 
 **Notes**
 
@@ -1018,9 +1034,9 @@ var command = regl({
 
     -   `fail`, the stencil op which is applied when the stencil test fails
     -   `zfail`, the stencil op which is applied when the stencil test passes and the depth test fails
-    -   `pass`, the stencil op which is applied when both stencil and depth tests pass
+    -   `zpass`, the stencil op which is applied when both stencil and depth tests pass
 
--   Values for `opFront.fail`, `opFront.zfail`, etc. can come from the following table
+-   Values for `op.fail`, `op.zfail`, `op.zpass` can come from the following table
 
 | Stencil Op         | Description    |
 | ------------------ | -------------- |
@@ -1357,12 +1373,27 @@ var positionBuffer = regl.buffer([
 | `data`   | The data for the vertex buffer (see below)                       | `null`     |
 | `length` | If `data` is `null` or not present reserves space for the buffer | `0`        |
 | `usage`  | Sets array buffer usage hint                                     | `'static'` |
+| `type`   | Data type for vertex buffer                                    | `'uint8'` |
+
+- `usage` can be one of the following values
 
 | Usage Hint  | Description       |
 | ----------- | ----------------- |
 | `'static'`  | `gl.DRAW_STATIC`  |
 | `'dynamic'` | `gl.DYNAMIC_DRAW` |
 | `'stream'`  | `gl.STREAM_DRAW`  |
+
+ - `type` can be one of the following data types
+
+| Data type          | Description          |
+| ------------------ | ---------------------|
+| `'uint8'`          | `gl.UNSIGNED_BYTE`   |  
+| `'int8'`           | `gl.BYTE`            |  
+| `'uint16'`         | `gl.UNSIGNED_SHORT`  |
+| `'int16'`          | `gl.SHORT`           |
+| `'uint32'`         | `gl.UNSIGNED_INT`    |
+| `'int32'`          | `gl.INT`             |
+| `'float32'`, `'float'`  | `gl.FLOAT`      |
 
 **Relevant WebGL APIs**
 
@@ -1395,8 +1426,8 @@ The arguments to the update pathway are the same as the constructor and the retu
 
 ##### Buffer subdata
 
-For performance reasons we may sometimes want to update just a portion of
-We can also update a portion of the buffer using the `subdata` method.  This can be useful if you are dealing with frequently changing or streaming vertex data.  Here is an example:
+For performance reasons we may sometimes want to update just a portion of the buffer.
+You can update a portion of the buffer using the `subdata` method.  This can be useful if you are dealing with frequently changing or streaming vertex data.  Here is an example:
 
 ```javascript
 // First we preallocate a buffer with 100 bytes of data
@@ -1477,6 +1508,7 @@ var starElements = regl.elements({
 | `usage`     | Usage hint (see `gl.bufferData`)          | `'static'`       |
 | `length`    | Length of the element buffer in bytes     | `0` \*           |
 | `primitive` | Default primitive type for element buffer | `'triangles'` \* |
+| `type`      | Data type for element buffer              | `'uint8'`        |
 | `count`     | Vertex count for element buffer           | `0` \*           |
 
 -   `usage` must take on one of the following values
@@ -1494,10 +1526,20 @@ var starElements = regl.elements({
 | `'points'`         | `gl.POINTS`         |
 | `'lines'`          | `gl.LINES`          |
 | `'line strip'`     | `gl.LINE_STRIP`     |
-| `'line loop`       | `gl.LINE_LOOP`      |
-| `'triangles`       | `gl.TRIANGLES`      |
+| `'line loop'`      | `gl.LINE_LOOP`      |
+| `'triangles'`      | `gl.TRIANGLES`      |
 | `'triangle strip'` | `gl.TRIANGLE_STRIP` |
 | `'triangle fan'`   | `gl.TRIANGLE_FAN`   |
+
+-   `type` can be one of the following data types
+
+| Data type          | Description          | Extension? |
+| ------------------ | ---------------------|------------|
+| `'uint8'`          | `gl.UNSIGNED_BYTE`   |            |
+| `'uint16'`         | `gl.UNSIGNED_SHORT`  |            |
+| `'uint32'`         | `gl.UNSIGNED_INT`    | [OES_element_index_uint](https://www.khronos.org/registry/webgl/extensions/OES_element_index_uint/)               |
+
+
 
 **Notes**
 
@@ -1604,13 +1646,16 @@ var ndarrayTexture = regl.texture(require('baboon-image'))
 
 // Manual mipmap specification
 var mipmapTexture = regl.texture({
-  minFilter: 'mipmap'
+  min: 'mipmap'
 })
 
 // From an image element
 var image = new Image()
 image.src = 'http://mydomain.com/myimage.png'
-var imageTexture = regl.texture(image)
+image.onload = function () {
+  var imageTexture = regl.texture(image)
+}
+
 
 // From a canvas
 var canvas = document.createElement(canvas)
@@ -1651,18 +1696,19 @@ A data source from an image can be one of the following types:
 | `height`           | Height of texture                                                                                                                                                | `0`         |
 | `mag`              | Sets magnification filter (see table)                                                                                                                            | `'nearest'` |
 | `min`              | Sets minification filter (see table)                                                                                                                             | `'nearest'` |
-| `wrapS`            | Sets wrap mode on S axis (see table)                                                                                                                             | `'repeat'`  |
-| `wrapT`            | Sets wrap mode on T axis (see table)                                                                                                                             | `'repeat'`  |
+| `wrapS`            | Sets wrap mode on S axis (see table)                                                                                                                             | `'clamp'`  |
+| `wrapT`            | Sets wrap mode on T axis (see table)                                                                                                                             | `'clamp'`  |
 | `aniso`            | Sets number of anisotropic samples, requires [EXT_texture_filter_anisotropic](https://www.khronos.org/registry/webgl/extensions/EXT_texture_filter_anisotropic/) | `0`         |
 | `format`           | Texture format (see table)                                                                                                                                       | `'rgba'`    |
 | `type`             | Texture type (see table)                                                                                                                                         | `'uint8'`   |
 | `data`             | Input data (see below)                                                                                                                                           |             |
 | `mipmap`           | See below for a description                                                                                                                                      | `false`     |
 | `flipY`            | Flips textures vertically when uploading                                                                                                                         | `false`     |
-| `alignment`        | Sets unpack alignment per pixel                                                                                                                                  | `1`         |
+| `alignment`        | Sets unpack alignment per row                                                                                                                                  | `1`         |
 | `premultiplyAlpha` | Premultiply alpha when unpacking                                                                                                                                 | `false`     |
 | `colorSpace`       | Sets colorspace conversion                                                                                                                                       | `'none'`    |
 | `data`             | Image data for the texture                                                                                                                                       | `null`      |
+| `channels`             | Number of channels for the texture format                                                                                                                                       | `null`      |
 
 -   `mipmap`. If `boolean`, then it sets whether or not we should regenerate the mipmaps. If a `string`, it allows you to specify a hint to the mipmap generator. It can be one of the hints below
 
@@ -1690,6 +1736,17 @@ regl.texture({
 ```
 
 -   `shape` can be used as an array shortcut for `[width, height, channels]` of image
+-   `channels` can be used to set the number of color channels of the texture. Examples:
+
+```
+var t1 = regl.texture({width: 1, height: 1, channels: 3}) // 'format' will be 'rgb'
+var t2 = regl.texture({shape: [2, 2, 2]}) // 'format' will be 'luminance alpha'
+var t3 = regl.texture({shape: [2, 2, 4]}) // 'format' will be 'rgba'
+```
+
+So it can be used as an alternative to `format`.
+
+
 -   `radius` can be specified for square images and sets both `width` and `height`
 -   `data` can take one of the following values,
 -   If an image element is specified and not yet loaded, then regl will upload a temporary image and hook a callback on the image
@@ -1766,7 +1823,7 @@ regl.texture({
 | `'none'`    | `gl.NONE`                  |
 | `'browser'` | `gl.BROWSER_DEFAULT_WEBGL` |
 
--   `unpackAlignment` sets the pixel unpack alignment and must be one of `[1, 2, 4, 8]`
+-   `alignment` sets the pixel unpack alignment and must be one of `[1, 2, 4, 8]`
 
 **Relevant WebGL APIs**
 
@@ -1848,6 +1905,37 @@ Finally, textures can be resized with the `.resize()` method.  Note that this cl
 var texture = regl.texture(5)
 
 texture.resize(3, 7)
+```
+
+##### Texture properties
+
+The following properties contains information about the texture.
+
+| Property           | Description                      |
+| ------------------ | -------------------------------- |
+| `width`            | Width of texture                 |
+| `height`           | Height of texture                |
+| `format`           | Texture Format                   |
+| `type`             | Texture Type                     |
+| `mag`              | Texture magnification filter     |
+| `min`              | Texture minification filter      |
+| `wrapS`            | Texture wrap mode on S axis      |
+| `wrapT`            | Texture wrap mode on T axis      |
+
+They can be accessed after texture creation like this:
+
+```javascript
+var t = regl.texture({
+  shape: [16, 16],
+  min: 'nearest mipmap linear',
+  mag: 'linear',
+  wrapS: 'mirror',
+  wrapT: 'repeat',
+  format: 'rgb',
+  type: 'uint8'
+})
+
+console.log('tex info: ', t.width, t.height, t.min, t.mag, t.wrapS, t.wrapT, t.format, t.type)
 ```
 
 #### Texture destructor
@@ -1958,6 +2046,32 @@ var cubemap = regl.cube({ ... })
 cubemap.resize(16)
 ```
 
+#### Cube map properties
+
+The following properties contains information about the cube map.
+
+| Property           | Description                      |
+| ------------------ | -------------------------------- |
+| `width`            | Width of a single cube map face                 |
+| `height`           | Height of a single cube map face                |
+| `format`           | Texture Format                   |
+| `type`             | Texture Type                     |
+| `mag`              | Texture magnification filter     |
+| `min`              | Texture minification filter      |
+| `wrapS`            | Texture wrap mode on S axis      |
+| `wrapT`            | Texture wrap mode on T axis      |
+
+They can be accessed after cube map creation like this:
+
+```javascript
+var c = regl.cube({
+  width: 2,
+  height: 2
+})
+
+console.log('cube: ', c.width, c.height, c.format, c.type, c.mag, c.min, c.wrapS, c.wrapT)
+```
+
 #### Cube map profiling
 
 The following stats are tracked for each cube map in the `.stats` property:
@@ -2046,6 +2160,26 @@ var renderbuffer = regl.renderbuffer({
 })
 
 renderbuffer.resize(32, 32)
+```
+
+#### Renderbuffer properties
+
+The following properties contains information about the renderbuffer.
+
+| Property           | Description                      |
+| ------------------ | -------------------------------- |
+| `width`            | Width of the renderbuffer                 |
+| `height`           | Height of the renderbuffer                 |
+| `format`           | Format of the renderbuffer                   |
+
+They can be accessed after renderbuffer creation like this:
+
+```javascript
+var r = regl.renderbuffer({shape: [1, 1],
+  format: 'rgb5 a1'
+})
+
+console.log('renderbuffer: ', r.width, r.height, r.format)
 ```
 
 #### Renderbuffers destructor
@@ -2143,6 +2277,29 @@ var framebuffer = regl.framebuffer(3, 4)
 framebuffer({
   shape: [8, 10],
   depth: false
+})
+```
+
+##### Framebuffer binding
+
+For convenience it is possible to bind a framebuffer directly.  This is a short cut for creating a command which sets the framebuffer:
+
+```javascript
+var framebuffer = regl.framebuffer(5)
+
+framebuffer.use(function () {
+  // now we can draw to the framebuffer
+})
+
+//
+// This is the same as doing the following:
+//
+var setFBO = regl({
+  framebuffer: framebuffer
+})
+
+setFBO(function () {
+  // .. same situation as above
 })
 ```
 
@@ -2260,6 +2417,7 @@ regl.clear({
 | `color`   | Sets the clear color         |
 | `depth`   | Sets the clear depth value   |
 | `stencil` | Sets the clear stencil value |
+| `framebuffer` | Sets the target framebuffer to clear (if unspecified, uses the current framebuffer object) |
 
 If an option is not present, then the corresponding buffer is not cleared
 
@@ -2313,6 +2471,7 @@ regl({framebuffer: fbo})(() => {
 | `y`      | The y-offset of the upper-left corner of the rectangle in pixels          | `0`                        |
 | `width`  | The width of the rectangle in pixels                                      | Current framebuffer width  |
 | `height` | The height of the rectangle in pixels                                     | Current framebuffer height |
+| `framebuffer` | Sets the framebuffer to read pixels from | The currently bound framebuffer |
 
 **Notes**
 
@@ -2469,9 +2628,19 @@ regl.destroy()
 
 ### Context loss
 
-`regl` makes a best faith effort to handle context loss by default.  This means that buffers and textures are reinitialized on a context restore with their contents.
+`regl` makes a best faith effort to handle context loss by default.  This means that buffers and textures are reinitialized on a context restore with their contents.  This can be done using the context loss events exposed by `regl`.  For example:
 
-**TODO**
+```javascript
+var regl = require('regl')()
+
+regl.on('lost', function () {
+  console.log('lost webgl context')
+})
+
+regl.on('restore', function () {
+  console.log('webgl context restored')
+})
+```
 
 * * *
 
@@ -2501,23 +2670,69 @@ The following are some random tips for writing WebGL programs.  Some are regl sp
 
 ### Reuse commands
 
+Creating commands in `regl` is expensive because `regl` does many complex optimizations up front in order to ensure the best possible performance.  As a result, it is expected that users should declare commands once and then call them many times.  For example:
+
+```javascript
+// Good usage:
+var command = regl({
+  vert: `...`,
+  frag: `...`
+})
+
+regl.frame(() => {
+  command()
+})
+```
+
+**Do not generate a command in your frame loop**:
+
+```javascript
+// BAD! Do not do this!
+regl.frame(() => {
+  // This creates a new command object and executes it each frame.
+  // It will be very slow.
+  regl({
+    vert: `...`,
+    frag: `...`
+  })()
+})
+```
+
 ### Reuse resources (buffers, elements, textures, etc.)
+
+Similarly, you should reuse buffers and textures wherever possible.  If you are continually uploading data to the GPU you should reuse whatever buffers or textures you can.  For example, suppose you want to play a video.  Then it is better to reuse the buffer as follows:
+
+```javascript
+// Get a reference to the video element
+const myVideo = document.querySelector('video')
+
+// Create a video texture
+const videoTexture = regl.texture(myVideo)
+
+regl.frame(() => {
+  // Update the frames of the video
+  videoTexture.subimage(myVideo)
+})
+```
+
+For dynamic buffers or elements, remember to allocate them using `stream` or `dynamic` usage.
 
 ### Preallocate memory
 
--   Reuse property objects passed to commands to avoid garbage collection
+The most common cause of jank in JavaScript applications is garbage collection.  In general, the only way to avoid this is to not allocate temporary objects.  To avoid this in `regl` you can reuse parameter objects which are passed to commands and preallocate arrays/matrices.
 
-### Debug vs release
+### Removing assertions
 
--   Debug mode inserts many checks
--   Compiling in release mode removes these assertions, improves performance and reduces bundle size
+By default, `regl` is compiled with a number of assertions, checks and validations to make it easier to find and fix errors.  However these assertions will increase your code size and in some cases may slightly slow things down.  Fortunately, they can be removed with the help of a transform in `bin/remove-check`.
 
 ### Profiling tips
 
+If your application is running too slow and you want to understand what is going on, regl provides many hooks which you can use to monitor and [debug your performance](https://github.com/mikolalysenko/regl/blob/gh-pages/API.md#profiling).
+
 ### Context loss mitigation
 
-### Cameras
+A WebGL application must be prepared to lose context at any time.  This is an unfortunate part of life when working on the web.  If this happens `regl` will make a best faith effort to recover functionality after the context is restored, however it is still up to the user to handle this situation.
 
 ### Use batch mode
 
-### Use glslify
+If you want to draw a bunch of copies of the same object, only with different properties, be sure to use [batch mode](https://github.com/mikolalysenko/regl/blob/gh-pages/API.md#batch-rendering).  Commands rendered in batch mode can be optimized by avoiding certain state checks which are required for serial commands.

@@ -1,4 +1,6 @@
 /*
+  tags: stencil, advanced
+
   <p>This example implements a blocky, dissolve transition effect, that transitions between two 3D models. It
   uses the stencil buffer to achieve this.</p>
 
@@ -274,7 +276,7 @@ const createMask = regl({
     opFront: {
       fail: 'replace',
       zfail: 'replace',
-      pass: 'replace'
+      zpass: 'replace'
     }
   },
   // we want to write only to the stencil buffer,

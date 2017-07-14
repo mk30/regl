@@ -1,48 +1,35 @@
 # Release notes
 
-## Planned
-
-* Context loss
-
-* Write comparison suite
-
-* Comments for all core modules
-
-* Update contributing guidelines, make it easier for people to help out
-
-* Add a mechanism for users to specify minimum resource requirements (texture size, varying units, etc.)
-
-* Benchmark suite
-
-  * Dashboard for test cases and benchmarks
-  * Create some more typical drawing examples
-
-* A pretty printer for the generated code
-
-* Documentation
-
-  * All interface methods must be documented
-  * Examples for all major features
-  * Set up/quick start guides
-  * Live coding videos on youtube
-  * Talks?  (what conferences can we present these results at?)
-  * Core library modules need better comments
-  * Work flow for development and testing needs documentation
-
-* Helper modules
-
-  * A camera helper module to make getting started with 3D code easier
-  * Debugging tools for inspecting the state of framebuffers, textures, buffers
-
-* Recipe book/example set
-
-  * Globe
-  * Turing patterns
-  * Asset loading (obj, ply, etc.)
-  * Water Reflection(though cubic-framebuffers)
-
 ## Next
 
+* Add `framebuffer.use()` method for quickly setting up framebuffer objects
+* `regl.clear` and `regl.read` now accept a framebuffer as a parameter
+
+## 1.2.1
+
+* Fixed bug with depth and stencil attachments being cleared
+* `regl.elements` now correctly infers count from length and vice-versa
+
+## 1.2.0
+
+* Simplified flattening logic for textures and buffers
+* Viewport and scissor box can go outside drawing buffer
+
+## 1.1.1
+
+* Fix bug with buffers and elements not updating type correctly
+
+## 1.1.0
+
+* Can now access format and filtering mode for textures and render buffers
+
+## 1.0.0
+
+* Support `stencil.op`
+* Rename stencil op `pass` to `zpass`
+* Attribute pointers can now use buffer literals
+* Implement basic context loss handling
+* Add `regl.on` for hooking events
 * Add `regl.now()`, allows sampling timer at high resolution outside of `regl.frame` in order to better synchronize DOM events
 
 ## 0.11.0
