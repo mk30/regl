@@ -1,10 +1,8 @@
 const regl = require('../../regl')()
 const mat4 = require('gl-mat4')
-
 var fs = require('fs');
 var image = fs.readFileSync(__dirname + '/cactusweird.png', 'base64');
 var imageurl = 'data:image/png;base64,' + image
-
 var cubePosition = [
   [-1.5, +1.5, +1.5], [+0.5, +0.5, +0.5], [+0.5, -0.5, +0.5], [-0.5, -0.5, +0.5], // positive z face.
   [+0.5, +0.5, +0.5], [+0.5, +0.5, -0.5], [+0.5, -2.5,
@@ -15,7 +13,6 @@ var cubePosition = [
   [-0.5, -0.5, -0.5], [+0.5, -0.5, -0.5], [+0.5, -0.5,
   +0.5], [+2, -0.5, +1.5]  // bottom face
 ]
-
 var cubeUv = [
   [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // positive z face.
   [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // positive x face.
@@ -24,7 +21,6 @@ var cubeUv = [
   [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // top face
   [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]  // bottom face
 ]
-
 const cubeElements = [
   [2, 1, 0], [2, 0, 3],       // positive z face.
   [6, 5, 4], [6, 4, 7],       // positive x face.
@@ -62,14 +58,14 @@ const drawCube = regl({
       const t = 0.01 * tick
       return mat4.lookAt([],
                          [5 * Math.cos(t), 2.5 * Math.sin(t), 5 * Math.sin(t)],
-                         [0, 0.0, 0],
+                         [Math.cos(t), 0.0, Math.sin(t)],
                          [0, 1, 0])
     },
     projection: ({viewportWidth, viewportHeight}) =>
       mat4.perspective([],
-                       Math.PI / 4,
+                       Math.PI / 6,
                        viewportWidth / viewportHeight,
-                       0.01,
+                       0.1,
                        10),
     tex: regl.prop('texture')
   }

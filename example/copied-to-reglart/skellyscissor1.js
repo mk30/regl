@@ -6,10 +6,9 @@ const skelly = require('./skelly.json')
 const normals = require('angle-normals')
 
 const camera = require('../util/camera')(regl, {
-  center: [0, 0, 0],
-  distance: 10,
-  phi: 0.7,
-  theta: 0.3
+  center: [0, 5, 0],
+  distance: 5,
+  phi: 0.5 
 })
 
 const drawskelly = regl({
@@ -55,10 +54,9 @@ const drawskelly = regl({
        },
     model: function(context, props){
       var theta = context.tick/60
-      mat4.identity(rmat)
-      mat4.scale(rmat, rmat, [0.25,0.25,0.25])
-      mat4.translate(rmat, rmat, [0, -25.0, 0.0])
-      return mat4.rotateY(rmat, rmat, theta)
+      var inmat = mat4.translate(rmat, mat4.identity(rmat),
+      [0.0, 0, 0.0])
+      return mat4.rotateY(rmat, inmat, theta)
     }
     
   },

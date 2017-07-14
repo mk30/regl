@@ -1,4 +1,4 @@
-const regl = require('../regl')()
+const regl = require('../../regl')()
 const mat4 = require('gl-mat4')
 var rmat = []
 
@@ -6,7 +6,7 @@ const cream = require('./implicitcream.js')
 const cone = require('./implicitcone.js')
 const normals = require('angle-normals')
 
-const camera = require('./util/camera')(regl, {
+const camera = require('../util/camera')(regl, {
   center: [0, 2.5, 0]
 })
 
